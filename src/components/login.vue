@@ -25,7 +25,6 @@
         <el-form-item>
           <el-button type="primary" @click="login">登录</el-button>
           <el-button type="info" @click="reset">重置</el-button>
-          <el-button @click="registered">注册</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -64,9 +63,6 @@ export default {
   },
   computed: {},
   methods: {
-    registered() {
-      this.$router.push("/registered");
-    },
     reset() {
       this.$refs.fromRef.resetFields();
     },

@@ -100,7 +100,6 @@ export default {
   background-color: #b3c0d1;
   line-height: 60px;
 }
-
 .el-aside {
   color: #333;
 }
@@ -115,5 +114,8 @@ export default {
   color: #fff;
   letter-spacing: 0.2em;
   cursor: pointer;
+}
+.el-header .el-button {
+  float: right;
 }
 </style>

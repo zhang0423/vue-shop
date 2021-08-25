@@ -74,6 +74,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="setRole(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -155,6 +156,34 @@
         <el-button type="primary" @click="editUser">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 分配权限对话框 -->
+    <el-dialog
+      title="分配角色"
+      :visible.sync="roleDialogVisible"
+      width="50%"
+      @close="downRoles"
+    >
+      <div>
+        <p>当前的用户:{{ userinfo.username }}</p>
+        <p>当前的角色:{{ userinfo.role_name }}</p>
+        <p>
+          分配新角色
+          <el-select v-model="selectRolesId" placeholder="请选择">
+            <el-option
+              v-for="item in rolesList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="roleDialogVisible = false">取 消</el-button>
+        <el-button type="primary" @click="sevaRolesinfo">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -192,8 +221,14 @@ export default {
       total: 0,
       dialogVisible: false,
       editDialogVisible: false,
+      roleDialogVisible: false,
+      selectRolesId: "",
+      /* 所有角色的数据 */
+      rolesList: [],
       /* 查询到的用户信息 */
       editFrom: {},
+      /* 需要被分配权限的用户信息 */
+      userinfo: {},
       /* 添加用户的表单数据 */
       addFrom: {
         username: "",
@@ -288,7 +323,7 @@ export default {
           this.$message.error("添加用户信息失败！");
         }
         this.$message.success("添加用户信息成功");
-        this.addDialogVisible = false;
+        this.dialogVisible = false;
         /* 更新用户列表 */
         this.getUserList();
       });
@@ -345,6 +380,37 @@ export default {
       }
       this.$message.success("删除用户成功！");
       this.getUserList();
+    },
+    /* 显示分配权限对话框 */
+    async setRole(userinfo) {
+      this.userinfo = userinfo;
+      /* 获取所有的角色列表 */
+      const { data: res } = await this.$http.get("roles");
+      if (res.meta.status !== 200) {
+        return this.$message.error("获取角色列表失败！");
+      }
+      this.rolesList = res.data;
+      this.roleDialogVisible = true;
+    },
+    /* 点击确定按钮更新用户角色 */
+    async sevaRolesinfo() {
+      if (!this.selectRolesId) {
+        return this.$message.error("请选择要分配的角色！");
+      }
+      const { data: res } = await this.$http.put(
+        `users/${this.userinfo.id}/role`,
+        { rid: this.selectRolesId }
+      );
+      if (res.meta.status !== 200) {
+        return this.$message.error("更新角色失败！");
+      }
+      this.$message.success("更新角色成功！");
+      this.getUserList();
+      this.roleDialogVisible = false;
+    },
+    downRoles() {
+      this.selectRolesId = "";
+      this.userinfo = {};
     },
   },
 };
